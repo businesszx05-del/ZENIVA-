@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zeniva - Wallpapers, Stickers & DPs</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="pb-24">
+
+    <!-- Header Section -->
+    <header class="p-4 sticky top-0 bg-[#0f172a]/95 backdrop-blur-md z-50 border-b border-slate-800">
+        <div class="flex justify-between items-center mb-3">
+            <h1 class="text-2xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">ZENIVA</h1>
+            <div class="flex items-center gap-2">
+                <!-- Admin Redirect Button -->
+                <a href="admin.html" class="text-xs bg-purple-600/20 text-purple-400 px-3 py-1.5 rounded-full border border-purple-500/30 font-medium inline-flex items-center">
+                    <i class="fa-solid fa-lock text-[10px] mr-1"></i> Admin Panel
+                </a>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-400"></i>
+            <input type="text" id="searchInput" placeholder="Search wallpapers, stickers, DPs..." 
+                class="w-full bg-slate-900 border border-slate-800 rounded-full py-3 pl-12 pr-4 text-sm focus:outline-none focus:border-purple-500 transition">
+        </div>
+    </header>
+
+    <!-- Categories / Tabs Filter -->
+    <nav class="flex gap-2 px-4 py-3 overflow-x-auto whitespace-nowrap">
+        <button onclick="filterCategory('all')" class="cat-btn px-4 py-1.5 rounded-full text-xs font-semibold bg-purple-600 text-white transition">All</button>
+        <button onclick="filterCategory('wallpapers')" class="cat-btn px-4 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Wallpapers</button>
+        <button onclick="filterCategory('stickers')" class="cat-btn px-4 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Stickers</button>
+        <button onclick="filterCategory('dps')" class="cat-btn px-4 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">WhatsApp DPs</button>
+    </nav>
+
+    <!-- Main Content Grid -->
+    <main class="px-4 py-2">
+        <div class="flex justify-between items-center mb-3">
+            <h2 id="sectionTitle" class="text-sm font-bold text-slate-400 uppercase tracking-wider">Trending Collection</h2>
+            <span class="text-xs text-purple-400 font-medium">Live Feed</span>
+        </div>
+
+        <div id="contentGrid" class="grid grid-cols-2 gap-3">
+            <!-- Items load dynamically -->
+        </div>
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 inset-x-0 bg-[#0f172a]/95 backdrop-blur-lg border-t border-slate-800 px-6 py-3 flex justify-between items-center z-40">
+        <button onclick="filterCategory('all')" class="flex flex-col items-center text-purple-400">
+            <i class="fa-solid fa-house text-lg"></i>
+            <span class="text-[10px] mt-1">Home</span>
+        </button>
+        <button onclick="filterCategory('stickers')" class="flex flex-col items-center text-slate-400 hover:text-purple-400 transition">
+            <i class="fa-solid fa-icons text-lg"></i>
+            <span class="text-[10px] mt-1">Stickers</span>
+        </button>
+        <button onclick="filterCategory('dps')" class="flex flex-col items-center text-slate-400 hover:text-purple-400 transition">
+            <i class="fa-solid fa-user-circle text-lg"></i>
+            <span class="text-[10px] mt-1">DPs</span>
+        </button>
+        <button onclick="filterCategory('wallpapers')" class="flex flex-col items-center text-slate-400 hover:text-purple-400 transition">
+            <i class="fa-solid fa-image text-lg"></i>
+            <span class="text-[10px] mt-1">Walls</span>
+        </button>
+    </nav>
+
+    <script>
+        let defaultItems = [
+            {
+                title: "Aesthetic Night",
+                category: "wallpapers",
+                url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e"
+            },
+            {
+                title: "Cute Cat Sticker",
+                category: "stickers",
+                url: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba"
+            },
+            {
+                title: "Stylish DP",
+                category: "dps",
+                url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb"
+            }
+        ];
+
+        let allData = [];
+
+        function loadData() {
+            let customItems = JSON.parse(localStorage.getItem('zeniva_admin_items')) || [];
+            allData = [...defaultItems, ...customItems];
+            displayItems(allData);
+        }
+
+        function displayItems(items) {
+            const grid = document.getElementById('contentGrid');
+            grid.innerHTML = '';
+
+            if(items.length === 0) {
+                grid.innerHTML = `<div class="col-span-2 text-center py-10 text-slate-500 text-xs">No items found</div>`;
+                return;
+            }
+
+            items.forEach(item => {
+                let card = document.createElement('div');
+                card.className = "bg-slate-900 rounded-2xl overflow-hidden border border-slate-800/80 relative group aspect-[9/16]";
+                card.innerHTML = `
+                    <img src="${item.url}" class="w-full h-full object-cover" alt="${item.title}">
+                    <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-3">
+                        <p class="text-xs font-medium text-slate-200 truncate">${item.title}</p>
+                        <span class="text-[9px] uppercase tracking-wider text-purple-400 font-semibold">${item.category}</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterCategory(category) {
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.classList.remove('bg-purple-600', 'text-white');
+                btn.classList.add('bg-slate-800', 'text-slate-300');
+            });
+            
+            document.getElementById('sectionTitle').innerText = category.toUpperCase() + ' COLLECTION';
+
+            if(category === 'all') {
+                displayItems(allData);
+            } else {
+                let filtered = allData.filter(item => item.category === category);
+                displayItems(filtered);
+            }
+        }
+
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            let query = e.target.value.toLowerCase();
+            let searched = allData.filter(item => item.title.toLowerCase().includes(query));
+            displayItems(searched);
+        });
+
+        loadData();
+    </script>
+</body>
+</html>
+
