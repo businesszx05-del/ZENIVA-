@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zeniva Admin Portal</title>
+    <title>Zeniva - Admin Panel</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome icons -->
@@ -14,107 +14,147 @@
             color: #f8fafc;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+        ::-webkit-scrollbar {
+            display: none;
+        }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
+<body class="p-4 max-w-md mx-auto">
 
-    <!-- PASSWORD VERIFICATION CONTAINER -->
-    <div id="passwordContainer" class="bg-slate-900 border border-slate-800 w-full max-w-xs rounded-3xl p-6 shadow-2xl">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-sm font-bold text-purple-400"><i class="fa-solid fa-lock mr-2"></i>Admin Verification</h3>
-            <a href="index.html" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-base"></i></a>
-        </div>
-        
-        <div class="space-y-3">
-            <div>
-                <label class="text-[11px] text-slate-400 font-medium">Enter Admin Password</label>
-                <input type="password" id="adminPasswordInput" placeholder="••••" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white mt-1 focus:outline-none focus:border-purple-500 text-center tracking-widest text-lg">
-                <!-- Inline Error Message -->
-                <p id="passwordError" class="text-[10px] text-red-400 text-center hidden mt-1.5 font-medium">Incorrect Password! Access Denied.</p>
-            </div>
-            <div class="flex gap-2 pt-2">
-                <a href="index.html" class="w-1/2 text-center bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-2.5 rounded-xl text-xs transition">Back</a>
-                <button onclick="verifyPassword()" class="w-1/2 bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2.5 rounded-xl text-xs transition">Login</button>
-            </div>
-        </div>
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6 pt-2">
+        <h1 class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Admin Dashboard</h1>
+        <a href="index.html" class="text-xs bg-slate-800 text-slate-300 px-3 py-1.5 rounded-full border border-slate-700 hover:bg-slate-700 transition">
+            <i class="fa-solid fa-arrow-left mr-1"></i> Back to App
+        </a>
     </div>
 
-    <!-- ADMIN PANEL CONTAINER (Hidden until password matches) -->
-    <div id="adminPanelContainer" class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-3xl p-6 shadow-2xl hidden">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-base font-bold text-purple-400"><i class="fa-solid fa-cloud-arrow-up mr-2"></i>Admin Dashboard</h3>
-            <a href="index.html" class="text-slate-400 hover:text-white text-xs bg-slate-800 px-2.5 py-1 rounded-lg">View App <i class="fa-solid fa-arrow-right ml-1"></i></a>
+    <!-- Login Box -->
+    <div id="loginSection" class="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl">
+        <h2 class="text-sm font-semibold text-slate-300 mb-3"><i class="fa-solid fa-lock text-purple-400 mr-2"></i> Enter Admin Password</h2>
+        <input type="password" id="adminPass" placeholder="Enter password (123)" 
+            class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm mb-3 focus:outline-none focus:border-purple-500">
+        <button onclick="checkLogin()" class="w-full bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-xl text-sm font-semibold transition">
+            Login
+        </button>
+    </div>
+
+    <!-- Admin Panel Content (Hidden initially) -->
+    <div id="adminPanel" class="hidden space-y-6">
+        <!-- Add Item Form -->
+        <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl">
+            <h2 class="text-sm font-bold text-purple-400 mb-4 uppercase tracking-wider">Add New Asset</h2>
+            
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs text-slate-400 mb-1 block">Item Title</label>
+                    <input type="text" id="itemTitle" placeholder="e.g. Funny Cat Sticker" 
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm focus:outline-none focus:border-purple-500">
+                </div>
+
+                <div>
+                    <label class="text-xs text-slate-400 mb-1 block">Select Category</label>
+                    <select id="itemCategory" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm focus:outline-none focus:border-purple-500 text-slate-200">
+                        <option value="wallpapers">Wallpaper (9:16)</option>
+                        <option value="stickers">Sticker (.webp)</option>
+                        <option value="dps">WhatsApp DP</option>
+                        <option value="wishes">Wish Card</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-xs text-slate-400 mb-1 block">GitHub Direct / Raw Image URL</label>
+                    <input type="text" id="itemUrl" placeholder="https://raw.githubusercontent.com/..." 
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm focus:outline-none focus:border-purple-500">
+                </div>
+
+                <button onclick="addItem()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white py-3 rounded-xl text-sm font-semibold transition shadow-lg shadow-purple-900/40">
+                    Add to Live App
+                </button>
+            </div>
         </div>
-        
-        <div class="space-y-3">
-            <div>
-                <label class="text-[11px] text-slate-400 font-medium">Item Title</label>
-                <input type="text" id="adminTitle" placeholder="e.g. Eid Mubarak Wish Card" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white mt-1 focus:outline-none focus:border-purple-500">
+
+        <!-- Manage / Delete Existing Custom Items -->
+        <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl">
+            <h2 class="text-sm font-bold text-slate-400 mb-4 uppercase tracking-wider">Manage Uploaded Items</h2>
+            <div id="manageList" class="space-y-2 max-h-60 overflow-y-auto">
+                <!-- Dynamic custom items list -->
             </div>
-            <div>
-                <label class="text-[11px] text-slate-400 font-medium">Select Category</label>
-                <select id="adminCategory" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white mt-1 focus:outline-none focus:border-purple-500">
-                    <option value="wallpapers">Wallpaper</option>
-                    <option value="stickers">Sticker (.webp)</option>
-                    <option value="dps">WhatsApp DP</option>
-                    <option value="wishes">Wish Card</option>
-                </select>
-            </div>
-            <div>
-                <label class="text-[11px] text-slate-400 font-medium">GitHub Direct / Raw Image URL</label>
-                <input type="text" id="adminUrl" placeholder="https://raw.githubusercontent.com/..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white mt-1 focus:outline-none focus:border-purple-500">
-            </div>
-            <button onclick="addNewItem()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2.5 rounded-xl text-xs transition mt-2">
-                Add to Live App
-            </button>
-            <button onclick="clearCustomData()" class="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 font-semibold py-2 rounded-xl text-[11px] transition">
-                Reset All Custom Added Items
-            </button>
         </div>
     </div>
 
     <script>
-        const ADMIN_PASSWORD = "123"; // Apna password yahan change kar sakte hain
-
-        function verifyPassword() {
-            let enteredPass = document.getElementById('adminPasswordInput').value;
-            let errorText = document.getElementById('passwordError');
-
-            if (enteredPass === ADMIN_PASSWORD) {
-                errorText.classList.add('hidden');
-                document.getElementById('passwordContainer').classList.add('hidden');
-                document.getElementById('adminPanelContainer').classList.remove('hidden');
+        function checkLogin() {
+            const pass = document.getElementById('adminPass').value;
+            if(pass === '123') {
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('adminPanel').classList.remove('hidden');
+                loadManageList();
             } else {
-                errorText.classList.remove('hidden');
-                document.getElementById('adminPasswordInput').value = '';
+                alert('Wrong Password! Use 123');
             }
         }
 
-        function addNewItem() {
-            let title = document.getElementById('adminTitle').value.trim();
-            let category = document.getElementById('adminCategory').value;
-            let url = document.getElementById('adminUrl').value.trim();
+        function addItem() {
+            let title = document.getElementById('itemTitle').value.trim();
+            let category = document.getElementById('itemCategory').value;
+            let url = document.getElementById('itemUrl').value.trim();
 
             if(!title || !url) {
-                alert("Please fill in both title and image URL!");
+                alert('Please fill in all fields!');
                 return;
             }
 
             let newItem = { title, category, url };
             let customItems = JSON.parse(localStorage.getItem('zeniva_admin_items')) || [];
-            customItems.push(newItem);
             
+            // Naya item list mein sab se upar add hoga
+            customItems.unshift(newItem);
             localStorage.setItem('zeniva_admin_items', JSON.stringify(customItems));
 
-            alert("Item successfully added to Zeniva App!");
-            document.getElementById('adminTitle').value = '';
-            document.getElementById('adminUrl').value = '';
+            alert('Successfully Added to Live App!');
+            document.getElementById('itemTitle').value = '';
+            document.getElementById('itemUrl').value = '';
+            loadManageList();
         }
 
-        function clearCustomData() {
-            if(confirm("Are you sure you want to delete all custom added items?")) {
-                localStorage.removeItem('zeniva_admin_items');
-                alert("All custom items cleared!");
+        function loadManageList() {
+            let listContainer = document.getElementById('manageList');
+            let customItems = JSON.parse(localStorage.getItem('zeniva_admin_items')) || [];
+            
+            listContainer.innerHTML = '';
+
+            if(customItems.length === 0) {
+                listContainer.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">No custom items uploaded yet.</p>`;
+                return;
+            }
+
+            customItems.forEach((item, index) => {
+                let row = document.createElement('div');
+                row.className = 'flex items-center justify-between bg-slate-950 p-2.5 rounded-xl border border-slate-800/80';
+                row.innerHTML = `
+                    <div class="flex items-center gap-3 overflow-hidden">
+                        <img src="${item.url}" class="w-9 h-9 object-cover rounded-lg bg-slate-900 flex-shrink-0">
+                        <div class="overflow-hidden">
+                            <p class="text-xs font-medium text-slate-200 truncate">${item.title}</p>
+                            <span class="text-[9px] text-purple-400 uppercase">${item.category}</span>
+                        </div>
+                    </div>
+                    <button onclick="deleteItem(${index})" class="bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-2.5 py-1.5 rounded-lg text-xs font-semibold transition">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                `;
+                listContainer.appendChild(row);
+            });
+        }
+
+        function deleteItem(index) {
+            if(confirm('Are you sure you want to delete this item?')) {
+                let customItems = JSON.parse(localStorage.getItem('zeniva_admin_items')) || [];
+                customItems.splice(index, 1); // List se item nikal diya
+                localStorage.setItem('zeniva_admin_items', JSON.stringify(customItems));
+                loadManageList(); // List dubara refresh hogi
+                alert('Item deleted successfully!');
             }
         }
     </script>
