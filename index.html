@@ -36,7 +36,7 @@
         <!-- Search Bar -->
         <div class="relative">
             <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-400"></i>
-            <input type="text" id="searchInput" placeholder="Search wallpapers, stickers, DPs..." 
+            <input type="text" id="searchInput" placeholder="Search wallpapers, stickers, DPs, wishes..." 
                 class="w-full bg-slate-900 border border-slate-800 rounded-full py-3 pl-12 pr-4 text-sm focus:outline-none focus:border-purple-500 transition">
         </div>
     </header>
@@ -47,6 +47,7 @@
         <button onclick="filterCategory('wallpapers')" class="cat-btn px-4 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Wallpapers</button>
         <button onclick="filterCategory('stickers')" class="cat-btn px-4 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Stickers</button>
         <button onclick="filterCategory('dps')" class="cat-btn px-4 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">WhatsApp DPs</button>
+        <button onclick="filterCategory('wishes')" class="cat-btn px-4 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Wish Cards</button>
     </nav>
 
     <!-- Main Content Grid -->
@@ -75,9 +76,9 @@
             <i class="fa-solid fa-user-circle text-lg"></i>
             <span class="text-[10px] mt-1">DPs</span>
         </button>
-        <button onclick="filterCategory('wallpapers')" class="flex flex-col items-center text-slate-400 hover:text-purple-400 transition">
-            <i class="fa-solid fa-image text-lg"></i>
-            <span class="text-[10px] mt-1">Walls</span>
+        <button onclick="filterCategory('wishes')" class="flex flex-col items-center text-slate-400 hover:text-purple-400 transition">
+            <i class="fa-solid fa-gift text-lg"></i>
+            <span class="text-[10px] mt-1">Wishes</span>
         </button>
     </nav>
 
@@ -97,6 +98,11 @@
                 title: "Stylish DP",
                 category: "dps",
                 url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb"
+            },
+            {
+                title: "Beautiful Wish Card",
+                category: "wishes",
+                url: "https://images.unsplash.com/photo-1513151233558-d860c5398176"
             }
         ];
 
@@ -157,4 +163,3 @@
     </script>
 </body>
 </html>
-
