@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zeniva Admin Portal</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <!-- PASSWORD VERIFICATION CONTAINER -->
+    <div id="passwordContainer" class="bg-slate-900 border border-slate-800 w-full max-w-xs rounded-3xl p-6 shadow-2xl">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-sm font-bold text-purple-400"><i class="fa-solid fa-lock mr-2"></i>Admin Verification</h3>
+            <a href="index.html" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-base"></i></a>
+        </div>
+        
+        <div class="space-y-3">
+            <div>
+                <label class="text-[11px] text-slate-400 font-medium">Enter Admin Password</label>
+                <input type="password" id="adminPasswordInput" placeholder="••••" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white mt-1 focus:outline-none focus:border-purple-500 text-center tracking-widest text-lg">
+                <!-- Inline Error Message -->
+                <p id="passwordError" class="text-[10px] text-red-400 text-center hidden mt-1.5 font-medium">Incorrect Password! Access Denied.</p>
+            </div>
+            <div class="flex gap-2 pt-2">
+                <a href="index.html" class="w-1/2 text-center bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-2.5 rounded-xl text-xs transition">Back</a>
+                <button onclick="verifyPassword()" class="w-1/2 bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2.5 rounded-xl text-xs transition">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN PANEL CONTAINER (Hidden until password matches) -->
+    <div id="adminPanelContainer" class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-3xl p-6 shadow-2xl hidden">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-base font-bold text-purple-400"><i class="fa-solid fa-cloud-arrow-up mr-2"></i>Admin Dashboard</h3>
+            <a href="index.html" class="text-slate-400 hover:text-white text-xs bg-slate-800 px-2.5 py-1 rounded-lg">View App <i class="fa-solid fa-arrow-right ml-1"></i></a>
+        </div>
+        
+        <div class="space-y-3">
+            <div>
+                <label class="text-[11px] text-slate-400 font-medium">Item Title</label>
+                <input type="text" id="adminTitle" placeholder="e.g. Cute Cat Sticker" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white mt-1 focus:outline-none focus:border-purple-500">
+            </div>
+            <div>
+                <label class="text-[11px] text-slate-400 font-medium">Select Category</label>
+                <select id="adminCategory" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white mt-1 focus:outline-none focus:border-purple-500">
+                    <option value="wallpapers">Wallpaper</option>
+                    <option value="stickers">Sticker (.webp)</option>
+                    <option value="dps">WhatsApp DP</option>
+                </select>
+            </div>
+            <div>
+                <label class="text-[11px] text-slate-400 font-medium">GitHub Direct / Raw Image URL</label>
+                <input type="text" id="adminUrl" placeholder="https://raw.githubusercontent.com/..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white mt-1 focus:outline-none focus:border-purple-500">
+            </div>
+            <button onclick="addNewItem()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2.5 rounded-xl text-xs transition mt-2">
+                Add to Live App
+            </button>
+            <button onclick="clearCustomData()" class="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 font-semibold py-2 rounded-xl text-[11px] transition">
+                Reset All Custom Added Items
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const ADMIN_PASSWORD = "Saifi6720@"; // Apna password yahan change kar sakte hain
+
+        function verifyPassword() {
+            let enteredPass = document.getElementById('adminPasswordInput').value;
+            let errorText = document.getElementById('passwordError');
+
+            if (enteredPass === ADMIN_PASSWORD) {
+                errorText.classList.add('hidden');
+                document.getElementById('passwordContainer').classList.add('hidden');
+                document.getElementById('adminPanelContainer').classList.remove('hidden');
+            } else {
+                errorText.classList.remove('hidden');
+                document.getElementById('adminPasswordInput').value = '';
+            }
+        }
+
+        function addNewItem() {
+            let title = document.getElementById('adminTitle').value.trim();
+            let category = document.getElementById('adminCategory').value;
+            let url = document.getElementById('adminUrl').value.trim();
+
+            if(!title || !url) {
+                alert("Please fill in both title and image URL!");
+                return;
+            }
+
+            let newItem = { title, category, url };
+            let customItems = JSON.parse(localStorage.getItem('zeniva_admin_items')) || [];
+            customItems.push(newItem);
+            
+            localStorage.setItem('zeniva_admin_items', JSON.stringify(customItems));
+
+            alert("Item successfully added to Zeniva App!");
+            document.getElementById('adminTitle').value = '';
+            document.getElementById('adminUrl').value = '';
+        }
+
+        function clearCustomData() {
+            if(confirm("Are you sure you want to delete all custom added items?")) {
+                localStorage.removeItem('zeniva_admin_items');
+                alert("All custom items cleared!");
+            }
+        }
+    </script>
+</body>
+</html>
+
