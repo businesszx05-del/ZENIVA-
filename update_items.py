@@ -6,12 +6,12 @@ import json
 TOKEN = os.getenv("GH_PAT")
 OWNER = "businesszx05-del"  # Aapka GitHub username
 
-# Repositories aur unki categories ki mapping
+# Repositories aur unki categories ki sahi mapping
 REPOS = {
     "Wallpapers": "Wallpapers-",
     "Stickers": "Whatsapp-stickers-",
     "Wish Cards": "Wish-card",
-    "DP": "ZENIVA"  # Ya aapka jo bhi DP repo ka naam ho
+    "DP": "Profile-Dps"  # Exact repo name screenshot ke mutabiq
 }
 
 HEADERS = {
@@ -56,4 +56,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-  
