@@ -164,17 +164,20 @@
         let allData = [];
         let currentMainCat = 'all';
 
-        // Live items.json fetch karne ka function
+        // Live items.json aur local items ko combine load karne ka function
         async function loadData() {
             try {
                 let response = await fetch('items.json?' + new Date().getTime());
-                let data = await response.json();
-                allData = data;
+                let jsonItems = await response.json();
+                let customItems = JSON.parse(localStorage.getItem('zeniva_admin_items')) || [];
+                // Dono ko combine kar diya taaki JSON aur admin items dono show hon
+                allData = [...jsonItems, ...customItems];
                 displayItems(allData, 'all');
                 renderSubCategories('all');
             } catch (error) {
                 console.error('Error loading items.json:', error);
-                allData = [];
+                let customItems = JSON.parse(localStorage.getItem('zeniva_admin_items')) || [];
+                allData = customItems;
                 displayItems(allData, 'all');
             }
         }
@@ -193,10 +196,10 @@
             }
             items.forEach(item => {
                 let card = document.createElement('div');
-                let isSticker = (item.category === 'stickers');
+                let isSticker = (item.category && item.category.toLowerCase() === 'stickers');
                 if (isSticker && category === 'stickers') {
                     card.className = 'bg-slate-900/90 rounded-xl overflow-hidden border border-slate-800/80 relative group aspect-square p-2 cursor-pointer shadow-md flex items-center justify-center';
-                } else if (item.category === 'dps') {
+                } else if (item.category && item.category.toLowerCase() === 'dps') {
                     card.className = 'bg-slate-900 rounded-2xl overflow-hidden border border-slate-800/80 relative group aspect-square cursor-pointer shadow-lg';
                 } else {
                     card.className = 'bg-slate-900 rounded-2xl overflow-hidden border border-slate-800/80 relative group aspect-[9/16] cursor-pointer shadow-lg';
@@ -245,7 +248,8 @@
             if(category === 'all') {
                 displayItems(allData, 'all');
             } else {
-                let filtered = allData.filter(item => item.category === category);
+                // Case-insensitive main category match
+                let filtered = allData.filter(item => item.category && item.category.toLowerCase() === category.toLowerCase());
                 displayItems(filtered, category);
             }
         }
@@ -257,9 +261,12 @@
             });
             btnElement.classList.remove('bg-slate-800', 'text-slate-300');
             btnElement.classList.add('bg-purple-600', 'text-white');
-            let filtered = allData.filter(item => item.category === currentMainCat);
+            
+            let filtered = allData.filter(item => item.category && item.category.toLowerCase() === currentMainCat.toLowerCase());
+            
             if(subCategory !== 'all') {
-                filtered = filtered.filter(item => item.subCategory === subCategory);
+                // Case-insensitive sub-category match (Handles "Couple" vs "couple")
+                filtered = filtered.filter(item => item.subCategory && item.subCategory.toLowerCase() === subCategory.toLowerCase());
             }
             displayItems(filtered, currentMainCat);
         }
@@ -369,6 +376,7 @@
             alert('Item added successfully!');
             document.getElementById('adminTitle').value = '';
             document.getElementById('adminUrl').value = '';
+            loadData(); // Data ko dobara reload karega taaki foran screen par show ho jaye
             loadAdminItemsList();
         }
         function loadAdminItemsList() {
@@ -392,6 +400,7 @@
                 let customItems = JSON.parse(localStorage.getItem('zeniva_admin_items')) || [];
                 customItems.splice(index, 1);
                 localStorage.setItem('zeniva_admin_items', JSON.stringify(customItems));
+                loadData();
                 loadAdminItemsList();
             }
         }
