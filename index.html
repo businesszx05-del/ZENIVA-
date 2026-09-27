@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zeniva - Wallpapers, Stickers & DPs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        ::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="pb-24">
+    <div id="splashScreen" class="fixed inset-0 bg-[#0f172a] z-50 flex flex-col items-center justify-center transition-opacity duration-700">
+        <h1 class="text-4xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 mb-2 animate-pulse">ZENIVA</h1>
+        <p class="text-xs text-slate-400 tracking-wider">Wallpapers • Stickers • DPs • Wishes</p>
+    </div>
+    <header class="p-4 sticky top-0 bg-[#0f172a]/95 backdrop-blur-md z-40 border-b border-slate-800">
+        <div class="flex justify-between items-center mb-3">
+            <div>
+                <h1 class="text-2xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">ZENIVA</h1>
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest">All-in-One Gallery</p>
+            </div>
+            <button onclick="openAdminLogin()" class="text-xs bg-purple-600/20 text-purple-400 px-3 py-1.5 rounded-full border border-purple-500/30 font-medium inline-flex items-center cursor-pointer">
+                <i class="fa-solid fa-lock text-[10px] mr-1"></i> Admin
+            </button>
+        </div>
+        <div class="relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-400"></i>
+            <input type="text" id="searchInput" placeholder="Search wallpapers, stickers, DPs, wishes..." class="w-full bg-slate-900 border border-slate-800 rounded-full py-3 pl-12 pr-4 text-sm focus:outline-none focus:border-purple-500 transition">
+        </div>
+    </header>
+    <nav class="flex gap-2 px-4 py-3 overflow-x-auto whitespace-nowrap border-b border-slate-800/50">
+        <button onclick="filterMainCat('all', this)" class="main-cat-btn px-4 py-1.5 rounded-full text-xs font-semibold bg-purple-600 text-white transition">All Feed</button>
+        <button onclick="filterMainCat('wallpapers', this)" class="main-cat-btn px-4 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Wallpapers</button>
+        <button onclick="filterMainCat('stickers', this)" class="main-cat-btn px-4 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Stickers</button>
+        <button onclick="filterMainCat('dps', this)" class="main-cat-btn px-4 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">WhatsApp DPs</button>
+        <button onclick="filterMainCat('wishes', this)" class="main-cat-btn px-4 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Wish Cards</button>
+    </nav>
+    <div id="subCatContainer" class="flex gap-2 px-4 py-2 overflow-x-auto whitespace-nowrap bg-slate-900/40"></div>
+    <main class="px-4 py-3">
+        <div class="flex justify-between items-center mb-3">
+            <h2 id="sectionTitle" class="text-xs font-bold text-slate-400 uppercase tracking-wider">Trending Collection</h2>
+            <span class="text-xs text-purple-400 font-medium">Live Feed</span>
+        </div>
+        <div id="contentGrid" class="grid grid-cols-2 gap-3"></div>
+    </main>
+    <div id="detailModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex flex-col justify-between p-4">
+        <div class="flex justify-end">
+            <button onclick="closeModal()" class="text-slate-400 hover:text-white bg-slate-800/80 p-2.5 rounded-full">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+        <div class="flex-1 flex items-center justify-center p-2">
+            <img id="modalImage" src="" class="max-h-[70vh] max-w-full rounded-2xl object-contain shadow-2xl" alt="Preview">
+        </div>
+        <div class="space-y-3 pb-4">
+            <h3 id="modalTitle" class="text-center text-sm font-semibold text-slate-200 truncate"></h3>
+            <div class="flex gap-3">
+                <a id="downloadBtn" href="" download target="_blank" class="flex-1 bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-2xl font-semibold text-xs text-center transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-download"></i> Download
+                </a>
+                <button onclick="shareImage()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-3 rounded-2xl font-semibold text-xs text-center transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-share-nodes"></i> Share
+                </button>
+            </div>
+        </div>
+    </div>
+    <div id="adminModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div id="passwordBox" class="bg-slate-900 border border-slate-800 w-full max-w-xs rounded-3xl p-6 shadow-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-sm font-bold text-purple-400"><i class="fa-solid fa-lock mr-2"></i>Admin Access</h3>
+                <button onclick="closeAdminModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-[11px] text-slate-400 font-medium">Enter admin password...</label>
+                    <input type="password" id="adminPasswordInput" placeholder="••••••••" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white mt-1 focus:outline-none focus:border-purple-500 text-center tracking-widest">
+                    <p id="passwordError" class="text-[10px] text-red-400 text-center hidden mt-1.5 font-medium">Incorrect Password!</p>
+                </div>
+                <button onclick="verifyPassword()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-lock-open"></i> Unlock Dashboard
+                </button>
+            </div>
+        </div>
+        <div id="dashboardBox" class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl hidden max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
+                <div>
+                    <h3 class="text-base font-bold text-purple-400"><i class="fa-solid fa-shield-halved mr-2"></i>Admin Panel</h3>
+                    <span class="text-[10px] text-emerald-400 font-medium">● Authenticated</span>
+                </div>
+                <button onclick="closeAdminModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-3">
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">+ Add New Item</h4>
+                <div>
+                    <label class="text-[11px] text-slate-400 font-medium">MAIN CATEGORY</label>
+                    <select id="adminCategory" onchange="updateSubCategoryOptions()" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white mt-1 focus:outline-none focus:border-purple-500">
+                        <option value="wallpapers">Wallpapers</option>
+                        <option value="stickers">Stickers</option>
+                        <option value="dps">WhatsApp DPs</option>
+                        <option value="wishes">Wish Cards</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[11px] text-slate-400 font-medium">SUB CATEGORY</label>
+                    <select id="adminSubCategory" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white mt-1 focus:outline-none focus:border-purple-500"></select>
+                </div>
+                <div>
+                    <label class="text-[11px] text-slate-400 font-medium">TITLE / NAME</label>
+                    <input type="text" id="adminTitle" placeholder="e.g. Cute Panda Wallpaper" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white mt-1 focus:outline-none focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="text-[11px] text-slate-400 font-medium">GITHUB RAW LINK / IMAGE URL</label>
+                    <input type="text" id="adminUrl" placeholder="https://raw.githubusercontent.com/..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white mt-1 focus:outline-none focus:border-purple-500">
+                </div>
+                <button onclick="addNewItem()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-3 rounded-xl text-xs transition shadow-lg shadow-purple-600/30">
+                    <i class="fa-solid fa-plus mr-1"></i> Add Item
+                </button>
+            </div>
+            <div class="mt-6 pt-4 border-t border-slate-800">
+                <div class="flex justify-between items-center mb-3">
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">All Items</h4>
+                    <span id="itemCount" class="text-xs text-purple-400 font-semibold">0 items</span>
+                </div>
+                <div id="adminItemsList" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
+            </div>
+        </div>
+    </div>
+    <nav class="fixed bottom-0 inset-x-0 bg-[#0f172a]/95 backdrop-blur-lg border-t border-slate-800 px-6 py-3 flex justify-between items-center z-40">
+        <button onclick="filterMainCat('all', document.querySelector('.main-cat-btn'))" class="flex flex-col items-center text-purple-400">
+            <i class="fa-solid fa-house text-lg"></i>
+            <span class="text-[10px] mt-1">Home</span>
+        </button>
+        <button onclick="filterMainCat('stickers', document.querySelectorAll('.main-cat-btn')[2])" class="flex flex-col items-center text-slate-400 hover:text-purple-400 transition">
+            <i class="fa-solid fa-icons text-lg"></i>
+            <span class="text-[10px] mt-1">Stickers</span>
+        </button>
+        <button onclick="filterMainCat('dps', document.querySelectorAll('.main-cat-btn')[3])" class="flex flex-col items-center text-slate-400 hover:text-purple-400 transition">
+            <i class="fa-solid fa-user-circle text-lg"></i>
+            <span class="text-[10px] mt-1">DPs</span>
+        </button>
+        <button onclick="filterMainCat('wishes', document.querySelectorAll('.main-cat-btn')[4])" class="flex flex-col items-center text-slate-400 hover:text-purple-400 transition">
+            <i class="fa-solid fa-gift text-lg"></i>
+            <span class="text-[10px] mt-1">Wishes</span>
+        </button>
+    </nav>
+    <script>
+        setTimeout(() => {
+            let splash = document.getElementById('splashScreen');
+            splash.style.opacity = '0';
+            setTimeout(() => splash.style.display = 'none', 700);
+        }, 1500);
+        const ADMIN_PASSWORD = 'Saifi6720@';
+        const subCategoriesMap = {
+            wallpapers: ['Couple', 'Dark AMOLED', 'Cute Animals & Pets', 'Nature & Landscapes', 'Islamic & Calligraphy', 'Quotes & Attitude'],
+            stickers: ['Dudu Bubu', 'Funny & Memes', 'Islamic Text'],
+            dps: ['Boys & Girls Stylish', 'Attitude & Status'],
+            wishes: ['Birthday Cards', 'Eid Cards', 'Anniversary Cards']
+        };
+        let defaultItems = [
+            { title: 'Aesthetic Couple', category: 'wallpapers', subCategory: 'Couple', url: 'https://images.unsplash.com/photo-1518199266791-5375a83190b7' },
+            { title: 'Cute Panda Dark', category: 'wallpapers', subCategory: 'Dark AMOLED', url: 'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7' },
+            { title: 'Dudu Bubu Love', category: 'stickers', subCategory: 'Dudu Bubu', url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb' },
+            { title: 'Stylish Boy DP', category: 'dps', subCategory: 'Boys & Girls Stylish', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d' },
+            { title: 'Birthday Wish Card', category: 'wishes', subCategory: 'Birthday Cards', url: 'https://images.unsplash.com/photo-1513151233558-d860c5398176' }
+        ];
+        let allData = [];
+        let currentMainCat = 'all';
+        function loadData() {
+            let customItems = JSON.parse(localStorage.getItem('zeniva_admin_items'));
+            if(!customItems) {
+                localStorage.setItem('zeniva_admin_items', JSON.stringify(defaultItems));
+                customItems = defaultItems;
+            }
+            allData = customItems;
+            displayItems(allData, 'all');
+            renderSubCategories('all');
+        }
+        function displayItems(items, category) {
+            const grid = document.getElementById('contentGrid');
+            grid.innerHTML = '';
+            if(items.length === 0) {
+                grid.innerHTML = '<div class="col-span-2 text-center py-10 text-slate-500 text-xs">No items found</div>';
+                return;
+            }
+            if (category === 'stickers') {
+                grid.className = 'grid grid-cols-3 gap-2.5';
+            } else {
+                grid.className = 'grid grid-cols-2 gap-3';
+            }
+            items.forEach(item => {
+                let card = document.createElement('div');
+                let isSticker = (item.category === 'stickers');
+                if (isSticker && category === 'stickers') {
+                    card.className = 'bg-slate-900/90 rounded-xl overflow-hidden border border-slate-800/80 relative group aspect-square p-2 cursor-pointer shadow-md flex items-center justify-center';
+                } else if (item.category === 'dps') {
+                    card.className = 'bg-slate-900 rounded-2xl overflow-hidden border border-slate-800/80 relative group aspect-square cursor-pointer shadow-lg';
+                } else {
+                    card.className = 'bg-slate-900 rounded-2xl overflow-hidden border border-slate-800/80 relative group aspect-[9/16] cursor-pointer shadow-lg';
+                }
+                card.onclick = () => openModal(item);
+                let imgClass = (isSticker && category === 'stickers') ? 'w-full h-full object-contain group-hover:scale-110 transition duration-300' : 'w-full h-full object-cover group-hover:scale-105 transition duration-300';
+                card.innerHTML = '<img src="' + item.url + '" class="' + imgClass + '" alt="' + item.title + '">' + (!isSticker || category !== 'stickers' ? '<div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5"><p class="text-[11px] font-medium text-slate-200 truncate">' + item.title + '</p><span class="text-[9px] uppercase tracking-wider text-purple-400 font-semibold">' + (item.subCategory || item.category) + '</span></div>' : '');
+                grid.appendChild(card);
+            });
+        }
+        function renderSubCategories(mainCat) {
+            const subContainer = document.getElementById('subCatContainer');
+            subContainer.innerHTML = '';
+            if (mainCat === 'all' || !subCategoriesMap[mainCat]) {
+                subContainer.style.display = 'none';
+                return;
+            }
+            subContainer.style.display = 'flex';
+            let allBtn = document.createElement('button');
+            allBtn.className = 'sub-cat-btn px-3 py-1 rounded-full text-[11px] font-medium bg-purple-600 text-white transition whitespace-nowrap';
+            allBtn.innerText = 'All ' + mainCat.toUpperCase();
+            allBtn.onclick = () => filterSubCategory('all', allBtn);
+            subContainer.appendChild(allBtn);
+            subCategoriesMap[mainCat].forEach(sub => {
+                let btn = document.createElement('button');
+                btn.className = 'sub-cat-btn px-3 py-1 rounded-full text-[11px] font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition whitespace-nowrap';
+                btn.innerText = sub;
+                btn.onclick = () => filterSubCategory(sub, btn);
+                subContainer.appendChild(btn);
+            });
+        }
+        function filterMainCat(category, btnElement) {
+            currentMainCat = category;
+            if(btnElement) {
+                document.querySelectorAll('.main-cat-btn').forEach(btn => {
+                    btn.classList.remove('bg-purple-600', 'text-white');
+                    btn.classList.add('bg-slate-800', 'text-slate-300');
+                });
+                btnElement.classList.remove('bg-slate-800', 'text-slate-300');
+                btnElement.classList.add('bg-purple-600', 'text-white');
+            }
+            document.getElementById('sectionTitle').innerText = category.toUpperCase() + ' COLLECTION';
+            renderSubCategories(category);
+            if(category === 'all') {
+                displayItems(allData, 'all');
+            } else {
+                let filtered = allData.filter(item => item.category === category);
+                displayItems(filtered, category);
+            }
+        }
+        function filterSubCategory(subCategory, btnElement) {
+            document.querySelectorAll('.sub-cat-btn').forEach(btn => {
+                btn.classList.remove('bg-purple-600', 'text-white');
+                btn.classList.add('bg-slate-800', 'text-slate-300');
+            });
+            btnElement.classList.remove('bg-slate-800', 'text-slate-300');
+            btnElement.classList.add('bg-purple-600', 'text-white');
+            let filtered = allData.filter(item => item.category === currentMainCat);
+            if(subCategory !== 'all') {
+                filtered = filtered.filter(item => item.subCategory === subCategory);
+            }
+            displayItems(filtered, currentMainCat);
+        }
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            let query = e.target.value.toLowerCase();
+            let searched = allData.filter(item => item.title.toLowerCase().includes(query) || (item.subCategory && item.subCategory.toLowerCase().includes(query)));
+            displayItems(searched, currentMainCat);
+        });
+        let activeModalItem = null;
+        function openModal(item) {
+            activeModalItem = item;
+            document.getElementById('modalImage').src = item.url;
+            document.getElementById('modalTitle').innerText = item.title;
+            document.getElementById('downloadBtn').href = item.url;
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+        function closeModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+        }
+        function shareImage() {
+            if (navigator.share && activeModalItem) {
+                navigator.share({ title: activeModalItem.title, text: 'Check out this amazing item from Zeniva App!', url: activeModalItem.url }).catch(() => {});
+            } else {
+                alert('Link copied!');
+                navigator.clipboard.writeText(activeModalItem.url);
+            }
+        }
+        function openAdminLogin() {
+            document.getElementById('adminModal').classList.remove('hidden');
+            document.getElementById('passwordBox').classList.remove('hidden');
+            document.getElementById('dashboardBox').classList.add('hidden');
+            document.getElementById('adminPasswordInput').value = '';
+            document.getElementById('passwordError').classList.add('hidden');
+        }
+        function closeAdminModal() {
+            document.getElementById('adminModal').classList.add('hidden');
+        }
+        function verifyPassword() {
+            let entered = document.getElementById('adminPasswordInput').value;
+            if (entered === ADMIN_PASSWORD) {
+                document.getElementById('passwordBox').classList.add('hidden');
+                document.getElementById('dashboardBox').classList.remove('hidden');
+                updateSubCategoryOptions();
+                loadAdminItemsList();
+            } else {
+                document.getElementById('passwordError').classList.remove('hidden');
+            }
+        }
+        function updateSubCategoryOptions() {
+            let mainCat = document.getElementById('adminCategory').value;
+            let subSelect = document.getElementById('adminSubCategory');
+            subSelect.innerHTML = '';
+            if(subCategoriesMap[mainCat]) {
+                subCategoriesMap[mainCat].forEach(sub => {
+                    let opt = document.createElement('option');
+                    opt.value = sub;
+                    opt.innerText = sub;
+                    subSelect.appendChild(opt);
+                });
+            }
+        }
+        function addNewItem() {
+            let title = document.getElementById('adminTitle').value.trim();
+            let category = document.getElementById('adminCategory').value;
+            let subCategory = document.getElementById('adminSubCategory').value;
+            let url = document.getElementById('adminUrl').value.trim();
+            if(!title || !url) {
+                alert('Please fill in title and image URL!');
+                return;
+            }
+            let newItem = { title, category, subCategory, url };
+            let customItems = JSON.parse(localStorage.getItem('zeniva_admin_items')) || [];
+            customItems.push(newItem);
+            localStorage.setItem('zeniva_admin_items', JSON.stringify(customItems));
+            alert('Item added successfully!');
+            document.getElementById('adminTitle').value = '';
+            document.getElementById('adminUrl').value = '';
+            loadAdminItemsList();
+            loadData();
+        }
+        function loadAdminItemsList() {
+            let customItems = JSON.parse(localStorage.getItem('zeniva_admin_items')) || [];
+            let listContainer = document.getElementById('adminItemsList');
+            document.getElementById('itemCount').innerText = customItems.length + ' items';
+            listContainer.innerHTML = '';
+            if(customItems.length === 0) {
+                listContainer.innerHTML = '<p class="text-[11px] text-slate-500 text-center py-4">No items found</p>';
+                return;
+            }
+            customItems.forEach((item, index) => {
+                let row = document.createElement('div');
+                row.className = 'flex items-center justify-between bg-slate-800/60 p-2.5 rounded-xl border border-slate-700/50 text-xs';
+                row.innerHTML = '<div class="flex items-center gap-2 overflow-hidden"><img src="' + item.url + '" class="w-8 h-8 rounded-lg object-cover flex-shrink-0"><div class="truncate"><p class="font-medium text-slate-200 truncate">' + item.title + '</p><p class="text-[9px] text-purple-400 capitalize">' + item.category + ' / ' + item.subCategory + '</p></div></div><button onclick="deleteCustomItem(' + index + ')" class="bg-red-500/15 hover:bg-red-500/30 text-red-400 px-2.5 py-1.5 rounded-lg text-xs transition flex-shrink-0 ml-2 cursor-pointer"><i class="fa-solid fa-trash"></i></button>';
+                listContainer.appendChild(row);
+            });
+        }
+        function deleteCustomItem(index) {
+            if(confirm('Are you sure you want to delete this item?')) {
+                let customItems = JSON.parse(localStorage.getItem('zeniva_admin_items')) || [];
+                customItems.splice(index, 1);
+                localStorage.setItem('zeniva_admin_items', JSON.stringify(customItems));
+                loadAdminItemsList();
+                loadData();
+            }
+        }
+        loadData();
+    </script>
+</body>
+</html>
