@@ -152,6 +152,7 @@
             splash.style.opacity = '0';
             setTimeout(() => splash.style.display = 'none', 700);
         }, 1500);
+        
         const ADMIN_PASSWORD = 'Saifi6720@';
         const subCategoriesMap = {
             wallpapers: ['Couple', 'Dark AMOLED', 'Cute Animals & Pets', 'Nature & Landscapes', 'Islamic & Calligraphy', 'Quotes & Attitude'],
@@ -159,25 +160,25 @@
             dps: ['Boys & Girls Stylish', 'Attitude & Status'],
             wishes: ['Birthday Cards', 'Eid Cards', 'Anniversary Cards']
         };
-        let defaultItems = [
-            { title: 'Aesthetic Couple', category: 'wallpapers', subCategory: 'Couple', url: 'https://images.unsplash.com/photo-1518199266791-5375a83190b7' },
-            { title: 'Cute Panda Dark', category: 'wallpapers', subCategory: 'Dark AMOLED', url: 'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7' },
-            { title: 'Dudu Bubu Love', category: 'stickers', subCategory: 'Dudu Bubu', url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb' },
-            { title: 'Stylish Boy DP', category: 'dps', subCategory: 'Boys & Girls Stylish', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d' },
-            { title: 'Birthday Wish Card', category: 'wishes', subCategory: 'Birthday Cards', url: 'https://images.unsplash.com/photo-1513151233558-d860c5398176' }
-        ];
+        
         let allData = [];
         let currentMainCat = 'all';
-        function loadData() {
-            let customItems = JSON.parse(localStorage.getItem('zeniva_admin_items'));
-            if(!customItems) {
-                localStorage.setItem('zeniva_admin_items', JSON.stringify(defaultItems));
-                customItems = defaultItems;
+
+        // Live items.json fetch karne ka function
+        async function loadData() {
+            try {
+                let response = await fetch('items.json?' + new Date().getTime());
+                let data = await response.json();
+                allData = data;
+                displayItems(allData, 'all');
+                renderSubCategories('all');
+            } catch (error) {
+                console.error('Error loading items.json:', error);
+                allData = [];
+                displayItems(allData, 'all');
             }
-            allData = customItems;
-            displayItems(allData, 'all');
-            renderSubCategories('all');
         }
+
         function displayItems(items, category) {
             const grid = document.getElementById('contentGrid');
             grid.innerHTML = '';
@@ -206,6 +207,7 @@
                 grid.appendChild(card);
             });
         }
+
         function renderSubCategories(mainCat) {
             const subContainer = document.getElementById('subCatContainer');
             subContainer.innerHTML = '';
@@ -227,6 +229,7 @@
                 subContainer.appendChild(btn);
             });
         }
+
         function filterMainCat(category, btnElement) {
             currentMainCat = category;
             if(btnElement) {
@@ -246,6 +249,7 @@
                 displayItems(filtered, category);
             }
         }
+
         function filterSubCategory(subCategory, btnElement) {
             document.querySelectorAll('.sub-cat-btn').forEach(btn => {
                 btn.classList.remove('bg-purple-600', 'text-white');
@@ -259,11 +263,13 @@
             }
             displayItems(filtered, currentMainCat);
         }
+
         document.getElementById('searchInput').addEventListener('input', function(e) {
             let query = e.target.value.toLowerCase();
             let searched = allData.filter(item => item.title.toLowerCase().includes(query) || (item.subCategory && item.subCategory.toLowerCase().includes(query)));
             displayItems(searched, currentMainCat);
         });
+
         let activeModalItem = null;
         function openModal(item) {
             activeModalItem = item;
@@ -274,12 +280,11 @@
         function closeModal() {
             document.getElementById('detailModal').classList.add('hidden');
         }
+
         async function downloadImage() {
             if (!activeModalItem || !activeModalItem.url) return;
-            
             let imageUrl = activeModalItem.url;
             let fileName = (activeModalItem.title ? activeModalItem.title.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'zeniva-image') + '.jpg';
-            
             let btn = document.getElementById('downloadBtn');
             let originalHTML = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Downloading...';
@@ -289,13 +294,11 @@
                 let response = await fetch(imageUrl);
                 let blob = await response.blob();
                 let blobUrl = window.URL.createObjectURL(blob);
-                
                 let a = document.createElement('a');
                 a.href = blobUrl;
                 a.download = fileName;
                 document.body.appendChild(a);
                 a.click();
-                
                 document.body.removeChild(a);
                 window.URL.revokeObjectURL(blobUrl);
             } catch (error) {
@@ -306,6 +309,7 @@
                 btn.style.pointerEvents = 'auto';
             }
         }
+
         function shareImage() {
             if (navigator.share && activeModalItem) {
                 navigator.share({ title: activeModalItem.title, text: 'Check out this amazing item from Zeniva App!', url: activeModalItem.url }).catch(() => {});
@@ -314,6 +318,7 @@
                 navigator.clipboard.writeText(activeModalItem.url);
             }
         }
+
         function openAdminLogin() {
             document.getElementById('adminModal').classList.remove('hidden');
             document.getElementById('passwordBox').classList.remove('hidden');
@@ -365,7 +370,6 @@
             document.getElementById('adminTitle').value = '';
             document.getElementById('adminUrl').value = '';
             loadAdminItemsList();
-            loadData();
         }
         function loadAdminItemsList() {
             let customItems = JSON.parse(localStorage.getItem('zeniva_admin_items')) || [];
@@ -389,9 +393,10 @@
                 customItems.splice(index, 1);
                 localStorage.setItem('zeniva_admin_items', JSON.stringify(customItems));
                 loadAdminItemsList();
-                loadData();
             }
         }
+        
+        // App load hone par data fetch karega
         loadData();
     </script>
 </body>
