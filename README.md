@@ -24,7 +24,7 @@ npm install
 Copy `.env.example` to `.env` and fill in your values:
 ```
 DATABASE_URL=postgresql://user:password@localhost:5432/zeniva_db
-ADMIN_PASSWORD=Saifi6720@
+ADMIN_PASSWORD=secret 
 ```
 
 ### 3. Push database schema
@@ -45,7 +45,7 @@ npm start
 
 ## Admin Panel
 - Tap the ⚙️ **Admin** button on the Home screen
-- Enter password: `Saifi6720@`
+- Enter password: `secret`
 - Use the dashboard to:
   - Select Main Category & Sub-Category
   - Enter a Title/Name
