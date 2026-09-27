@@ -475,3 +475,4 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
     </div>
   );
 }
+
