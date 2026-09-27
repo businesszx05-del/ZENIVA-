@@ -1,15 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/db";
+import { sql } from "drizzle-orm";
 
-export async function POST(req: NextRequest) {
+export const dynamic = "force-dynamic";
+
+export async function GET() {
   try {
-    const body = await req.json();
-    const { password } = body;
-
-    if (password === process.env.ADMIN_PASSWORD) {
-      return NextResponse.json({ success: true });
-    }
-    return NextResponse.json({ success: false, error: "Invalid password" }, { status: 401 });
+    await db.execute(sql`select 1`);
+    return Response.json({ ok: true });
   } catch {
-    return NextResponse.json({ error: "Bad request" }, { status: 400 });
+    return Response.json({ ok: false }, { status: 500 });
   }
 }
