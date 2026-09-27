@@ -1,0 +1,34 @@
+name: Update Items JSON
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Rozana ek baar automatically run hoga
+  workflow_dispatch:      # Manual trigger button ke liye
+
+jobs:
+  update-json:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: pip install requests
+
+      - name: Run Update Script
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: python update_items.py
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git add items.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update items.json" && git push)
+          
