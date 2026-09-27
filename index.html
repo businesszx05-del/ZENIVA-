@@ -58,10 +58,10 @@
         <div class="space-y-3 pb-4">
             <h3 id="modalTitle" class="text-center text-sm font-semibold text-slate-200 truncate"></h3>
             <div class="flex gap-3">
-                <a id="downloadBtn" href="" download target="_blank" class="flex-1 bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-2xl font-semibold text-xs text-center transition flex items-center justify-center gap-2">
+                <button id="downloadBtn" onclick="downloadImage()" class="flex-1 bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-2xl font-semibold text-xs text-center transition flex items-center justify-center gap-2 cursor-pointer">
                     <i class="fa-solid fa-download"></i> Download
-                </a>
-                <button onclick="shareImage()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-3 rounded-2xl font-semibold text-xs text-center transition flex items-center justify-center gap-2">
+                </button>
+                <button onclick="shareImage()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-3 rounded-2xl font-semibold text-xs text-center transition flex items-center justify-center gap-2 cursor-pointer">
                     <i class="fa-solid fa-share-nodes"></i> Share
                 </button>
             </div>
@@ -115,7 +115,7 @@
                     <label class="text-[11px] text-slate-400 font-medium">GITHUB RAW LINK / IMAGE URL</label>
                     <input type="text" id="adminUrl" placeholder="https://raw.githubusercontent.com/..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white mt-1 focus:outline-none focus:border-purple-500">
                 </div>
-                <button onclick="addNewItem()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-3 rounded-xl text-xs transition shadow-lg shadow-purple-600/30">
+                <button onclick="addNewItem()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-3 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 cursor-pointer">
                     <i class="fa-solid fa-plus mr-1"></i> Add Item
                 </button>
             </div>
@@ -129,19 +129,19 @@
         </div>
     </div>
     <nav class="fixed bottom-0 inset-x-0 bg-[#0f172a]/95 backdrop-blur-lg border-t border-slate-800 px-6 py-3 flex justify-between items-center z-40">
-        <button onclick="filterMainCat('all', document.querySelector('.main-cat-btn'))" class="flex flex-col items-center text-purple-400">
+        <button onclick="filterMainCat('all', document.querySelector('.main-cat-btn'))" class="flex flex-col items-center text-purple-400 cursor-pointer">
             <i class="fa-solid fa-house text-lg"></i>
             <span class="text-[10px] mt-1">Home</span>
         </button>
-        <button onclick="filterMainCat('stickers', document.querySelectorAll('.main-cat-btn')[2])" class="flex flex-col items-center text-slate-400 hover:text-purple-400 transition">
+        <button onclick="filterMainCat('stickers', document.querySelectorAll('.main-cat-btn')[2])" class="flex flex-col items-center text-slate-400 hover:text-purple-400 transition cursor-pointer">
             <i class="fa-solid fa-icons text-lg"></i>
             <span class="text-[10px] mt-1">Stickers</span>
         </button>
-        <button onclick="filterMainCat('dps', document.querySelectorAll('.main-cat-btn')[3])" class="flex flex-col items-center text-slate-400 hover:text-purple-400 transition">
+        <button onclick="filterMainCat('dps', document.querySelectorAll('.main-cat-btn')[3])" class="flex flex-col items-center text-slate-400 hover:text-purple-400 transition cursor-pointer">
             <i class="fa-solid fa-user-circle text-lg"></i>
             <span class="text-[10px] mt-1">DPs</span>
         </button>
-        <button onclick="filterMainCat('wishes', document.querySelectorAll('.main-cat-btn')[4])" class="flex flex-col items-center text-slate-400 hover:text-purple-400 transition">
+        <button onclick="filterMainCat('wishes', document.querySelectorAll('.main-cat-btn')[4])" class="flex flex-col items-center text-slate-400 hover:text-purple-400 transition cursor-pointer">
             <i class="fa-solid fa-gift text-lg"></i>
             <span class="text-[10px] mt-1">Wishes</span>
         </button>
@@ -215,13 +215,13 @@
             }
             subContainer.style.display = 'flex';
             let allBtn = document.createElement('button');
-            allBtn.className = 'sub-cat-btn px-3 py-1 rounded-full text-[11px] font-medium bg-purple-600 text-white transition whitespace-nowrap';
+            allBtn.className = 'sub-cat-btn px-3 py-1 rounded-full text-[11px] font-medium bg-purple-600 text-white transition whitespace-nowrap cursor-pointer';
             allBtn.innerText = 'All ' + mainCat.toUpperCase();
             allBtn.onclick = () => filterSubCategory('all', allBtn);
             subContainer.appendChild(allBtn);
             subCategoriesMap[mainCat].forEach(sub => {
                 let btn = document.createElement('button');
-                btn.className = 'sub-cat-btn px-3 py-1 rounded-full text-[11px] font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition whitespace-nowrap';
+                btn.className = 'sub-cat-btn px-3 py-1 rounded-full text-[11px] font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition whitespace-nowrap cursor-pointer';
                 btn.innerText = sub;
                 btn.onclick = () => filterSubCategory(sub, btn);
                 subContainer.appendChild(btn);
@@ -269,11 +269,42 @@
             activeModalItem = item;
             document.getElementById('modalImage').src = item.url;
             document.getElementById('modalTitle').innerText = item.title;
-            document.getElementById('downloadBtn').href = item.url;
             document.getElementById('detailModal').classList.remove('hidden');
         }
         function closeModal() {
             document.getElementById('detailModal').classList.add('hidden');
+        }
+        async function downloadImage() {
+            if (!activeModalItem || !activeModalItem.url) return;
+            
+            let imageUrl = activeModalItem.url;
+            let fileName = (activeModalItem.title ? activeModalItem.title.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'zeniva-image') + '.jpg';
+            
+            let btn = document.getElementById('downloadBtn');
+            let originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Downloading...';
+            btn.style.pointerEvents = 'none';
+
+            try {
+                let response = await fetch(imageUrl);
+                let blob = await response.blob();
+                let blobUrl = window.URL.createObjectURL(blob);
+                
+                let a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(blobUrl);
+            } catch (error) {
+                console.warn('Blob download failed, opening direct link', error);
+                window.open(imageUrl, '_blank');
+            } finally {
+                btn.innerHTML = originalHTML;
+                btn.style.pointerEvents = 'auto';
+            }
         }
         function shareImage() {
             if (navigator.share && activeModalItem) {
