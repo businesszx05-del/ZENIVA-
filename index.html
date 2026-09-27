@@ -146,7 +146,7 @@
             <span class="text-[10px] mt-1">Wishes</span>
         </button>
     </nav>
-    <script>
+        <script>
         setTimeout(() => {
             let splash = document.getElementById('splashScreen');
             splash.style.opacity = '0';
@@ -164,14 +164,13 @@
         let allData = [];
         let currentMainCat = 'all';
 
-        // Live items.json aur local items ko combine load karne ka function
         async function loadData() {
             try {
                 let response = await fetch('items.json?' + new Date().getTime());
                 let jsonItems = await response.json();
                 let customItems = JSON.parse(localStorage.getItem('zeniva_admin_items')) || [];
-                // Dono ko combine kar diya taaki JSON aur admin items dono show hon
                 allData = [...jsonItems, ...customItems];
+                console.log("Loaded Data:", allData); // Console mein check karne ke liye
                 displayItems(allData, 'all');
                 renderSubCategories('all');
             } catch (error) {
@@ -185,7 +184,7 @@
         function displayItems(items, category) {
             const grid = document.getElementById('contentGrid');
             grid.innerHTML = '';
-            if(items.length === 0) {
+            if(!items || items.length === 0) {
                 grid.innerHTML = '<div class="col-span-2 text-center py-10 text-slate-500 text-xs">No items found</div>';
                 return;
             }
@@ -196,17 +195,20 @@
             }
             items.forEach(item => {
                 let card = document.createElement('div');
-                let isSticker = (item.category && item.category.toLowerCase() === 'stickers');
+                let itemCat = (item.category || '').toLowerCase();
+                let isSticker = (itemCat === 'stickers' || itemCat === 'sticker');
+                
                 if (isSticker && category === 'stickers') {
                     card.className = 'bg-slate-900/90 rounded-xl overflow-hidden border border-slate-800/80 relative group aspect-square p-2 cursor-pointer shadow-md flex items-center justify-center';
-                } else if (item.category && item.category.toLowerCase() === 'dps') {
+                } else if (itemCat.includes('dp')) {
                     card.className = 'bg-slate-900 rounded-2xl overflow-hidden border border-slate-800/80 relative group aspect-square cursor-pointer shadow-lg';
                 } else {
                     card.className = 'bg-slate-900 rounded-2xl overflow-hidden border border-slate-800/80 relative group aspect-[9/16] cursor-pointer shadow-lg';
                 }
                 card.onclick = () => openModal(item);
                 let imgClass = (isSticker && category === 'stickers') ? 'w-full h-full object-contain group-hover:scale-110 transition duration-300' : 'w-full h-full object-cover group-hover:scale-105 transition duration-300';
-                card.innerHTML = '<img src="' + item.url + '" class="' + imgClass + '" alt="' + item.title + '">' + (!isSticker || category !== 'stickers' ? '<div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5"><p class="text-[11px] font-medium text-slate-200 truncate">' + item.title + '</p><span class="text-[9px] uppercase tracking-wider text-purple-400 font-semibold">' + (item.subCategory || item.category) + '</span></div>' : '');
+                let subText = item.subCategory || item.subcategory || item.category || '';
+                card.innerHTML = '<img src="' + (item.url || item.image || '') + '" class="' + imgClass + '" alt="' + (item.title || 'Image') + '">' + (!isSticker || category !== 'stickers' ? '<div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5"><p class="text-[11px] font-medium text-slate-200 truncate">' + (item.title || 'Untitled') + '</p><span class="text-[9px] uppercase tracking-wider text-purple-400 font-semibold">' + subText + '</span></div>' : '');
                 grid.appendChild(card);
             });
         }
@@ -245,11 +247,18 @@
             }
             document.getElementById('sectionTitle').innerText = category.toUpperCase() + ' COLLECTION';
             renderSubCategories(category);
+            
             if(category === 'all') {
                 displayItems(allData, 'all');
             } else {
-                // Case-insensitive main category match
-                let filtered = allData.filter(item => item.category && item.category.toLowerCase() === category.toLowerCase());
+                let filtered = allData.filter(item => {
+                    let c = (item.category || '').toLowerCase();
+                    if (category === 'wallpapers') return c === 'wallpapers' || c === 'wallpaper';
+                    if (category === 'stickers') return c === 'stickers' || c === 'sticker';
+                    if (category === 'dps') return c === 'dps' || c === 'dp' || c === 'whatsapp dps';
+                    if (category === 'wishes') return c === 'wishes' || c === 'wish' || c === 'wish cards';
+                    return c === category.toLowerCase();
+                });
                 displayItems(filtered, category);
             }
         }
@@ -262,26 +271,41 @@
             btnElement.classList.remove('bg-slate-800', 'text-slate-300');
             btnElement.classList.add('bg-purple-600', 'text-white');
             
-            let filtered = allData.filter(item => item.category && item.category.toLowerCase() === currentMainCat.toLowerCase());
+            let filtered = allData.filter(item => {
+                let c = (item.category || '').toLowerCase();
+                let mainMatch = false;
+                if (currentMainCat === 'wallpapers') mainMatch = (c === 'wallpapers' || c === 'wallpaper');
+                else if (currentMainCat === 'stickers') mainMatch = (c === 'stickers' || c === 'sticker');
+                else if (currentMainCat === 'dps') mainMatch = (c === 'dps' || c === 'dp' || c === 'whatsapp dps');
+                else if (currentMainCat === 'wishes') mainMatch = (c === 'wishes' || c === 'wish' || c === 'wish cards');
+                else mainMatch = (c === currentMainCat.toLowerCase());
+                return mainMatch;
+            });
             
             if(subCategory !== 'all') {
-                // Case-insensitive sub-category match (Handles "Couple" vs "couple")
-                filtered = filtered.filter(item => item.subCategory && item.subCategory.toLowerCase() === subCategory.toLowerCase());
+                filtered = filtered.filter(item => {
+                    let sub = (item.subCategory || item.subcategory || '').toLowerCase();
+                    return sub === subCategory.toLowerCase();
+                });
             }
             displayItems(filtered, currentMainCat);
         }
 
         document.getElementById('searchInput').addEventListener('input', function(e) {
             let query = e.target.value.toLowerCase();
-            let searched = allData.filter(item => item.title.toLowerCase().includes(query) || (item.subCategory && item.subCategory.toLowerCase().includes(query)));
+            let searched = allData.filter(item => {
+                let title = (item.title || '').toLowerCase();
+                let sub = (item.subCategory || item.subcategory || '').toLowerCase();
+                return title.includes(query) || sub.includes(query);
+            });
             displayItems(searched, currentMainCat);
         });
 
         let activeModalItem = null;
         function openModal(item) {
             activeModalItem = item;
-            document.getElementById('modalImage').src = item.url;
-            document.getElementById('modalTitle').innerText = item.title;
+            document.getElementById('modalImage').src = item.url || item.image;
+            document.getElementById('modalTitle').innerText = item.title || 'Preview';
             document.getElementById('detailModal').classList.remove('hidden');
         }
         function closeModal() {
@@ -289,8 +313,8 @@
         }
 
         async function downloadImage() {
-            if (!activeModalItem || !activeModalItem.url) return;
-            let imageUrl = activeModalItem.url;
+            let imgUrl = activeModalItem ? (activeModalItem.url || activeModalItem.image) : '';
+            if (!activeModalItem || !imgUrl) return;
             let fileName = (activeModalItem.title ? activeModalItem.title.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'zeniva-image') + '.jpg';
             let btn = document.getElementById('downloadBtn');
             let originalHTML = btn.innerHTML;
@@ -298,7 +322,7 @@
             btn.style.pointerEvents = 'none';
 
             try {
-                let response = await fetch(imageUrl);
+                let response = await fetch(imgUrl);
                 let blob = await response.blob();
                 let blobUrl = window.URL.createObjectURL(blob);
                 let a = document.createElement('a');
@@ -310,7 +334,7 @@
                 window.URL.revokeObjectURL(blobUrl);
             } catch (error) {
                 console.warn('Blob download failed, opening direct link', error);
-                window.open(imageUrl, '_blank');
+                window.open(imgUrl, '_blank');
             } finally {
                 btn.innerHTML = originalHTML;
                 btn.style.pointerEvents = 'auto';
@@ -318,11 +342,12 @@
         }
 
         function shareImage() {
+            let imgUrl = activeModalItem ? (activeModalItem.url || activeModalItem.image) : '';
             if (navigator.share && activeModalItem) {
-                navigator.share({ title: activeModalItem.title, text: 'Check out this amazing item from Zeniva App!', url: activeModalItem.url }).catch(() => {});
+                navigator.share({ title: activeModalItem.title, text: 'Check out this amazing item from Zeniva App!', url: imgUrl }).catch(() => {});
             } else {
                 alert('Link copied!');
-                navigator.clipboard.writeText(activeModalItem.url);
+                navigator.clipboard.writeText(imgUrl);
             }
         }
 
@@ -376,7 +401,7 @@
             alert('Item added successfully!');
             document.getElementById('adminTitle').value = '';
             document.getElementById('adminUrl').value = '';
-            loadData(); // Data ko dobara reload karega taaki foran screen par show ho jaye
+            loadData();
             loadAdminItemsList();
         }
         function loadAdminItemsList() {
@@ -391,7 +416,7 @@
             customItems.forEach((item, index) => {
                 let row = document.createElement('div');
                 row.className = 'flex items-center justify-between bg-slate-800/60 p-2.5 rounded-xl border border-slate-700/50 text-xs';
-                row.innerHTML = '<div class="flex items-center gap-2 overflow-hidden"><img src="' + item.url + '" class="w-8 h-8 rounded-lg object-cover flex-shrink-0"><div class="truncate"><p class="font-medium text-slate-200 truncate">' + item.title + '</p><p class="text-[9px] text-purple-400 capitalize">' + item.category + ' / ' + item.subCategory + '</p></div></div><button onclick="deleteCustomItem(' + index + ')" class="bg-red-500/15 hover:bg-red-500/30 text-red-400 px-2.5 py-1.5 rounded-lg text-xs transition flex-shrink-0 ml-2 cursor-pointer"><i class="fa-solid fa-trash"></i></button>';
+                row.innerHTML = '<div class="flex items-center gap-2 overflow-hidden"><img src="' + (item.url || item.image) + '" class="w-8 h-8 rounded-lg object-cover flex-shrink-0"><div class="truncate"><p class="font-medium text-slate-200 truncate">' + item.title + '</p><p class="text-[9px] text-purple-400 capitalize">' + item.category + ' / ' + item.subCategory + '</p></div></div><button onclick="deleteCustomItem(' + index + ')" class="bg-red-500/15 hover:bg-red-500/30 text-red-400 px-2.5 py-1.5 rounded-lg text-xs transition flex-shrink-0 ml-2 cursor-pointer"><i class="fa-solid fa-trash"></i></button>';
                 listContainer.appendChild(row);
             });
         }
@@ -405,8 +430,5 @@
             }
         }
         
-        // App load hone par data fetch karega
         loadData();
     </script>
-</body>
-</html>
